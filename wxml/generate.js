@@ -140,15 +140,19 @@ function generateDirect(node, code, state) {
         code = `{directs.$if(
                           () => ${compiled}, 
                           () => (${code}), 
-                          null
                       )}`
         break
       case "wx:else":
         code = `{directs.$else(
                           () => ${compiled}, 
                           () => (${code}), 
-                          null
                       )}`
+        break
+      case "wx:elseif":
+        code = `{directs.$elseif(
+                            () => ${compiled}, 
+                            () => (${code}), 
+                        )}`
         break
       case "wx:for":
         const item = findItem(node)
@@ -192,12 +196,25 @@ function generateProps(node, state, asset) {
       } else if (compiled.indexOf("{") > -1) {
         code += name + "={`" + compiled.replace(/{/g, "${") + "`}"
       } else {
-        code += `${name}='${compiled}'`
+        code += `${name}="${compiled}"`
       }
     }
   }
-  code += `>`
+  code += `${getHash(asset, node)} >`
   return code
+}
+
+function getHash(asset, node) {
+  if (!node.attributes.class) return ""
+  let hash = ""
+  if (asset.tag) {
+    hash = asset.hash.slice(0, 6)
+  } else {
+    let p = asset
+    if (p.parent.type !== "json") p = p.parent
+    hash = p.hash.slice(0, 6)
+  }
+  return `data-w-${hash}`
 }
 
 function compileTemplate(template, data, isStr) {

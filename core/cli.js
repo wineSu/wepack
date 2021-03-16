@@ -32,19 +32,17 @@ async function run(argv) {
 
 async function start(options) {
   options.old && options.old.close()
-  const assetTree = await build(options.e)
+  const adt = await build(options.e)
   log("bulid success")
-  await pack(assetTree, {
-    outputPath: options.o,
-  })
+  await pack(adt, options)
   log("package success")
   options.old = serve()
 }
 
 const getOptions = (argv) => {
   let out = {
-    e: "app.json",
-    o: "/dist/",
+    e: "./demo/app.json",
+    o: "./dist/",
   }
   for (let i = 0; i < argv.length; i++) {
     const name = argv[i]
@@ -67,7 +65,7 @@ const getOptions = (argv) => {
 
 run(process.argv.slice(2))
 
-function log(msg, color){
+function log(msg, color) {
   switch (color) {
     case 1:
       console.log("\033[43;30m DONE \033[40;33m " + msg + "\033[0m")
